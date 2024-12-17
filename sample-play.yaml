@@ -1,0 +1,6 @@
+---
+  - name: testing
+    hosts:
+    tasks:
+      - name: my first play
+        
