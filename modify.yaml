@@ -1,0 +1,21 @@
+---
+  - name: modify the content
+    hosts: all
+    tasks:
+      - name: modify development
+        ansible.builtin.copy:
+          content: "Development"
+          dest: /etc/issue
+        when: inventory_hostname is in groups['dev']
+
+      - name: modify test
+        ansible.builtin.copy:
+          content: "Test"
+          dest: /etc/issue
+        when: inventory_hostname is in groups['balancers']
+
+      - name: modify production
+        ansible.builtin.copy:
+          content: "Production"
+          dest: /etc/issue
+        when: inventory_hostname is in groups['prod']

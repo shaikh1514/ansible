@@ -1,0 +1,9 @@
+--- 
+  - name: configuring ntp
+    hosts: balancers, prod
+    vars:
+      timesync_ntp_servers:
+        - hostname: 172.25.254.254
+          iburst: enabled
+    roles:
+      - redhat.rhel_system_roles.timesync

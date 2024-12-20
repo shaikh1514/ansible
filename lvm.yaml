@@ -1,0 +1,48 @@
+---
+  - name: creating lvm
+    hosts: all
+    ignore_errors: true
+    tasks:
+      - name: verify vg exists
+        ansible.builtin.command:
+          cmd: vgs research
+        register: vg
+
+      - name: debug msg vg not found
+        ansible.builtin.debug:
+          msg: "VG not found"
+        when: vg.rc != 0
+
+      - name: creat lv worth 600mb
+        community.general.lvol:
+          vg: research
+          lv: data
+          size: 600m
+          state: present
+        when: ansible_facts['lvm']['vgs']['research']['size_g'] > '0.60' and vg.rc == 0
+
+      - name: create filesystem
+        community.general.filesystem:
+          fstype: ext4
+          dev: /dev/research/data
+        when: ansible_facts['lvm']['vgs']['research']['size_g'] > '0.60' and vg.rc == 0
+
+      - name: print insufficient msg
+        ansible.builtin.debug:
+          msg: "Insufficient size of vg research"
+        when: ansible_facts['lvm']['vgs']['research']['size_g'] < '0.60' and vg.rc == 0
+
+      - name: create lvm worth of size 200
+        community.general.lvol:
+          vg: research
+          lv: data
+          size: 200m
+          state: present
+        when: ansible_facts['lvm']['vgs']['research']['size_g'] < '0.60' and vg.rc == 0
+
+      - name: assign filesystem
+        community.general.filesystem:
+          fstype: ext4
+          dev: /dev/research/data
+        when: ansible_facts['lvm']['vgs']['research']['size_g'] < '0.60' and vg.rc == 0
+

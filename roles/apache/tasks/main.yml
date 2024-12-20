@@ -1,0 +1,29 @@
+---
+# tasks file for apache
+  - name: install package
+    ansible.builtin.dnf:
+      name:
+        - httpd
+        - firewalld
+      state: present
+
+  - name: start services
+    ansible.builtin.service:
+      name: "{{ item }}"
+      state: started
+      enabled: true
+    loop:
+      - httpd
+      - firewalld
+
+  - name: configure index.html
+    ansible.builtin.template:
+      src: index.html.j2
+      dest: /var/www/html/index.html
+
+  - name: confirue firewall
+    ansible.posix.firewalld:
+      service: http
+      state: enabled
+      immediate: true
+      permanent: true

@@ -1,0 +1,46 @@
+---
+  - name: confittrugin webserver
+    hosts: dev
+    tasks:
+      - name: install the package
+        ansible.builtin.dnf:
+          name:
+            - httpd
+            - firewalld
+          state: latest
+      - name: start the service
+        ansible.builtin.service:
+          name: "{{ item }}"
+          state: started
+          enabled: true
+        loop:
+          - httpd
+          - firewalld
+
+      - name: create directory
+        ansible.builtin.file:
+          path: /webdev
+          state: directory
+          mode: '2775'
+          group: apache
+          setype: 'httpd_sys_content_t'
+
+      - name: create the link
+        ansible.builtin.file:
+          src: /webdev
+          dest: /var/www/html/webdev
+          state: link
+          setype: 'httpd_sys_content_t'
+
+      - name: create file
+        ansible.builtin.copy:
+          content: "Development"
+          dest: /webdev/index.html
+          setype: 'httpd_sys_content_t'
+
+      - name: enable firewall
+        ansible.posix.firewalld:
+          service: http
+          state: enabled
+          immediate: true
+          permanent: true

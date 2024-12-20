@@ -1,0 +1,11 @@
+---
+  - name: adding a con job
+    hosts: all
+    tasks:
+      - name: adding a job
+        ansible.builtin.cron:
+          name: logger
+          user: student
+          minute: "*/2"
+          job: logger "ex294 is in progress"
+          state: present
